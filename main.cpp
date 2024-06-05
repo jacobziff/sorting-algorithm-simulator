@@ -24,9 +24,11 @@ unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 std::default_random_engine e(seed);
 sf::Font font;
 Screen currentScreen = Screen::Home;
+bool cursorOn = true;
+bool paused = false;
 
 /* Update the window to display the instructions and the current array nums */
-void updateWindow(const vector<int>& nums) {
+void updateWindow(const vector<int>& nums, int cursor = -1, bool doneSorting = false) {
     window.clear();
 
     sf::Text title;
@@ -56,7 +58,7 @@ void updateWindow(const vector<int>& nums) {
             title.setCharacterSize(48);
             title.setFillColor(sf::Color::White);
             instructions.setFont(font);
-            instructions.setString("Esc: Exit\nP: Pause Sorting\nS: Shuffle Array\nB: Bubble Sort\nX: Bogo Sort\nE: Selection Sort\nM: Merge Sort\n1 - 7: Change Size of Array");
+            instructions.setString("Esc: Exit\nP: Pause Sorting\nS: Shuffle Array\nC: Enable/Disable Cursor\nB: Bubble Sort\nX: Bogo Sort\nE: Selection Sort\nI: Insertion Sort\nM: Merge Sort\nQ: Quick Sort\n1 - 7: Change Size of Array");
             instructions.setPosition(sf::Vector2f(WIDTH / 10, HEIGHT / 3));
             instructions.setCharacterSize(24);
             instructions.setFillColor(sf::Color::White);
@@ -69,6 +71,12 @@ void updateWindow(const vector<int>& nums) {
                 sf::RectangleShape rectangle(sf::Vector2f(((WIDTH - 200) / nums.size()), (nums[i] * ((HEIGHT - 200) / nums.size()))));
                 rectangle.setPosition(sf::Vector2f(100 + (i * ((WIDTH - 200) / nums.size())), HEIGHT - 100));
                 rectangle.setFillColor(sf::Color(150, 150, 150));
+                if (cursorOn && i == cursor) {
+                    rectangle.setFillColor(sf::Color(219, 31, 34));
+                }
+                if (doneSorting && i <= cursor) {
+                    rectangle.setFillColor(sf::Color(38, 183, 255));
+                }
                 rectangle.rotate(180.f);
                 window.draw(rectangle);
             }
@@ -92,10 +100,35 @@ void initialize(vector<int>& nums) {
     shuffle(nums);
 }
 
-/* Detect P key being pressed (used for pausing in-progress sorting) */
+/* Detect P or Esc key being pressed (used for pausing in-progress sorting) */
 bool checkPause() {
     sf::Event event;
-    return (window.pollEvent(event) && event.type == sf::Event::KeyPressed && event.key.scancode == sf::Keyboard::Scan::P);
+    if (window.pollEvent(event) && event.type == sf::Event::KeyPressed && (event.key.scancode == sf::Keyboard::Scan::P || event.key.scancode == sf::Keyboard::Scan::Escape)) {
+        paused = true;
+        return true;
+    }
+    return false;
+}
+
+/* Show to the user that nums is sorted */
+void finishedSorting(vector<int>& nums) {
+    updateWindow(nums);
+
+    // If the sorting stopped from user pausing
+    if (paused) {
+        paused = false;
+        return;
+    }
+    
+    for (int i = 0; i < nums.size(); ++i) {
+        if (checkPause()) {
+            updateWindow(nums);
+            return;
+        }
+        updateWindow(nums, i, true);
+        this_thread::sleep_for(chrono::milliseconds(800 / nums.size()));
+    }
+    this_thread::sleep_for(chrono::milliseconds(500));
 }
 
 /* Bubble Sort Algorithm */
@@ -108,7 +141,7 @@ void bubbleSort(vector<int>& nums) {
             }
             if (nums[j] > nums[j + 1]) {
                 swap(nums[j], nums[j + 1]);
-                updateWindow(nums);
+                updateWindow(nums, j);
                 swapped = true;
             }
         }
@@ -126,13 +159,27 @@ void selectionSort(vector<int>& nums) {
             if (checkPause()) {
                 return;
             }
-            this_thread::sleep_for(chrono::microseconds(100));
+            updateWindow(nums, j);
             if (nums[j] < nums[minIndex]) {
                 minIndex = j;
             }
         }
         swap(nums[i], nums[minIndex]);
-        updateWindow(nums);
+    }
+}
+
+/* Insertion Sort Algorithm */
+void insertionSort(vector<int>& nums) {
+    for (int i = 1; i < nums.size(); ++i) {
+        int j = i;
+        while (j > 0 && nums[j] < nums[j - 1]) {
+            if (checkPause()) {
+                return;
+            }
+            swap(nums[j], nums[j - 1]);
+            updateWindow(nums, j);
+            --j;
+        }
     }
 }
 
@@ -166,7 +213,7 @@ bool merge(vector<int>& nums, int start, int mid, int end) {
             ++b;
         }
         this_thread::sleep_for(chrono::microseconds(1000));
-        updateWindow(nums);
+        updateWindow(nums, i);
         ++i;
     }
     return true;
@@ -195,6 +242,45 @@ bool mergeSort(vector<int>& nums, int start, int end) {
     }
 }
 
+/* Partition nums for Quick Sort algorithm */
+/* Return -1 if user pauses, otherwise return partition index */
+int partition(vector<int>& nums, int start, int end) {
+    int pivot = nums[end];
+    int i = start - 1;
+    for (int j = start; j <= end; ++j) {
+        if (checkPause()) {
+            return -1;
+        }
+        this_thread::sleep_for(chrono::microseconds(250));
+        if (nums[j] < pivot) {
+            ++i;
+            swap(nums[i], nums[j]);
+            updateWindow(nums, j);
+        }
+    }
+    swap(nums[i + 1], nums[end]);
+    updateWindow(nums, i);
+    return i + 1;
+}
+
+/* Quick Sort Algorithm */
+/* If return false, it means to stop the whole algorithm */
+bool quickSort(vector<int>& nums, int start, int end) {
+    if (start < end) {
+        int partitionIndex = partition(nums, start, end);
+        if (partitionIndex == -1) {
+            return false;
+        }
+        if (!quickSort(nums, start, partitionIndex - 1)) {
+            return false;
+        }
+        if (!quickSort(nums, partitionIndex + 1, end)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /* Bogo Sort Algorithm */
 void bogoSort(vector<int>& nums) {
     while (true) {
@@ -202,9 +288,9 @@ void bogoSort(vector<int>& nums) {
             return;
         }
         shuffle(nums);
-        updateWindow(nums);
         bool good = true;
         for (int i = 0; i < nums.size() - 1; ++i) {
+            updateWindow(nums, i);
             if (nums[i] > nums[i + 1]) {
                 good = false;
                 break;
@@ -327,6 +413,10 @@ int main(int argc, char** argv) {
                             case sf::Keyboard::Scan::Left:
                                 currentScreen = Screen::Instructions;
                                 break;
+                            // Toggle Cursor
+                            case sf::Keyboard::Scan::C:
+                                cursorOn = !cursorOn;
+                                break;
                             // Shuffle nums
                             case sf::Keyboard::Scan::S:
                                 shuffle(nums);
@@ -334,18 +424,31 @@ int main(int argc, char** argv) {
                             // Bubble Sort
                             case sf::Keyboard::Scan::B:
                                 bubbleSort(nums);
+                                finishedSorting(nums);
                                 break;
                             // Selection Sort
                             case sf::Keyboard::Scan::E:
                                 selectionSort(nums);
+                                finishedSorting(nums);
+                                break;
+                            // Insertion Sort
+                            case sf::Keyboard::Scan::I:
+                                insertionSort(nums);
+                                finishedSorting(nums);
                                 break;
                             // Merge Sort
                             case sf::Keyboard::Scan::M:
-                                mergeSort(nums, 0, nums.size());
+                                mergeSort(nums, 0, nums.size() - 1);
+                                finishedSorting(nums);
+                                break;
+                            case sf::Keyboard::Scan::Q:
+                                quickSort(nums, 0, nums.size() - 1);
+                                finishedSorting(nums);
                                 break;
                             // Bogo Sort
                             case sf::Keyboard::Scan::X:
                                 bogoSort(nums);
+                                finishedSorting(nums);
                                 break;
                             // Switch to 5-element vector
                             case sf::Keyboard::Scan::Num1:
