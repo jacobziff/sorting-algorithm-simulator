@@ -12,31 +12,67 @@ using namespace std;
 #define WIDTH 700.0
 #define HEIGHT 700.0
 
+enum Screen {
+    Home,
+    Instructions,
+    Sorting
+};
+
 // Global variables
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Sorting");
 unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 std::default_random_engine e(seed);
 sf::Font font;
+Screen currentScreen = Screen::Home;
 
 /* Update the window to display the instructions and the current array nums */
 void updateWindow(const vector<int>& nums) {
     window.clear();
 
-    // Create and draw instructions
+    sf::Text title;
     sf::Text instructions;
-    instructions.setFont(font);
-    instructions.setString("Esc: Exit\nS: Shuffle\nB: Bubble Sort\nX: Bogo Sort\nE: Selection Sort\nM: Merge Sort\n1 - 7: Change Size of Array");
-    instructions.setCharacterSize(24);
-    instructions.setFillColor(sf::Color::White);
-    window.draw(instructions);
 
-    // Draw the nums array
-    for (int i = 0; i < nums.size(); ++i) {
-        sf::RectangleShape rectangle(sf::Vector2f(((WIDTH - 200) / nums.size()), (nums[i] * ((HEIGHT - 200) / nums.size()))));
-        rectangle.setPosition(sf::Vector2f(100 + (i * ((WIDTH - 200) / nums.size())), HEIGHT - 100));
-        rectangle.setFillColor(sf::Color(150, 150, 150));
-        rectangle.rotate(180.f);
-        window.draw(rectangle);
+    switch (currentScreen) {
+        case Screen::Home:
+            // Create and draw home screen
+            title.setFont(font);
+            title.setString("Sorting Simulator");
+            title.setPosition(sf::Vector2f(WIDTH / 4, HEIGHT / 4));
+            title.setCharacterSize(48);
+            title.setFillColor(sf::Color::White);
+            instructions.setFont(font);
+            instructions.setString("Use the left and right arrows\nto navigate between screens.");
+            instructions.setPosition(sf::Vector2f(WIDTH / 4, HEIGHT / 2));
+            instructions.setCharacterSize(24);
+            instructions.setFillColor(sf::Color::White);
+            window.draw(title);
+            window.draw(instructions);
+            break;
+        case Screen::Instructions:
+            // Create and draw instructions screen
+            title.setFont(font);
+            title.setString("Instructions");
+            title.setPosition(sf::Vector2f(WIDTH / 3, HEIGHT / 10));
+            title.setCharacterSize(48);
+            title.setFillColor(sf::Color::White);
+            instructions.setFont(font);
+            instructions.setString("Esc: Exit\nP: Pause Sorting\nS: Shuffle Array\nB: Bubble Sort\nX: Bogo Sort\nE: Selection Sort\nM: Merge Sort\n1 - 7: Change Size of Array");
+            instructions.setPosition(sf::Vector2f(WIDTH / 10, HEIGHT / 3));
+            instructions.setCharacterSize(24);
+            instructions.setFillColor(sf::Color::White);
+            window.draw(title);
+            window.draw(instructions);
+            break;
+        case Screen::Sorting:
+            // Create and draw sorting screen
+            for (int i = 0; i < nums.size(); ++i) {
+                sf::RectangleShape rectangle(sf::Vector2f(((WIDTH - 200) / nums.size()), (nums[i] * ((HEIGHT - 200) / nums.size()))));
+                rectangle.setPosition(sf::Vector2f(100 + (i * ((WIDTH - 200) / nums.size())), HEIGHT - 100));
+                rectangle.setFillColor(sf::Color(150, 150, 150));
+                rectangle.rotate(180.f);
+                window.draw(rectangle);
+            }
+            break;
     }
 
     // Display everything on the window
@@ -56,11 +92,20 @@ void initialize(vector<int>& nums) {
     shuffle(nums);
 }
 
+/* Detect P key being pressed (used for pausing in-progress sorting) */
+bool checkPause() {
+    sf::Event event;
+    return (window.pollEvent(event) && event.type == sf::Event::KeyPressed && event.key.scancode == sf::Keyboard::Scan::P);
+}
+
 /* Bubble Sort Algorithm */
 void bubbleSort(vector<int>& nums) {
     for (int i = 0; i < nums.size() - 1; ++i) {
         bool swapped = false;
         for (int j = 0; j < nums.size() - i - 1; ++j) {
+            if (checkPause()) {
+                return;
+            }
             if (nums[j] > nums[j + 1]) {
                 swap(nums[j], nums[j + 1]);
                 updateWindow(nums);
@@ -78,6 +123,9 @@ void selectionSort(vector<int>& nums) {
     for (int i = 0; i < nums.size(); ++i) {
         int minIndex = i;
         for (int j = i; j < nums.size(); ++j) {
+            if (checkPause()) {
+                return;
+            }
             this_thread::sleep_for(chrono::microseconds(100));
             if (nums[j] < nums[minIndex]) {
                 minIndex = j;
@@ -89,7 +137,8 @@ void selectionSort(vector<int>& nums) {
 }
 
 /* Merge two subsequent parts of nums */
-void merge(vector<int>& nums, int start, int mid, int end) {
+/* If return false, it means to stop the whole algorithm */
+bool merge(vector<int>& nums, int start, int mid, int end) {
     vector<int> temp;
     for (int i = start; i <= end; ++i) {
         temp.push_back(nums[i]);
@@ -98,6 +147,9 @@ void merge(vector<int>& nums, int start, int mid, int end) {
     int b = mid - start + 1;
     int i = start;
     while (a <= mid - start || b <= end - start) {
+        if (checkPause()) {
+            return false;
+        }
         if (a <= mid - start && b <= end - start) {
             if (temp[a] < temp[b]) {
                 nums[i] = temp[a];
@@ -117,23 +169,38 @@ void merge(vector<int>& nums, int start, int mid, int end) {
         updateWindow(nums);
         ++i;
     }
+    return true;
 }
 
 /* Merge Sort Algorithm */
-void mergeSort(vector<int>& nums, int start, int end) {
+/* If return false, it means to stop the whole algorithm */
+bool mergeSort(vector<int>& nums, int start, int end) {
     if (start >= end) {
-        return;
+        return true;
     } else {
+        if (checkPause()) {
+            return false;
+        }
         int mid = start + ((end - start) / 2);
-        mergeSort(nums, start, mid);
-        mergeSort(nums, mid + 1, end);
-        merge(nums, start, mid, end);
+        if (!mergeSort(nums, start, mid)) {
+            return false;
+        }
+        if (!mergeSort(nums, mid + 1, end)) {
+            return false;
+        }
+        if (!merge(nums, start, mid, end)) {
+            return false;
+        }
+        return true;
     }
 }
 
 /* Bogo Sort Algorithm */
 void bogoSort(vector<int>& nums) {
     while (true) {
+        if (checkPause()) {
+            return;
+        }
         shuffle(nums);
         updateWindow(nums);
         bool good = true;
@@ -181,89 +248,156 @@ int main(int argc, char** argv) {
 
     // Main program loop
     while (window.isOpen()) {
-        // Detect event
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            // Close window
-            if (event.type == sf::Event::Closed) {
-                window.close();
-                done = true;
-            } else if (event.type == sf::Event::KeyPressed) {
-                // Detect which key is pressed
-                switch(event.key.scancode) {
-                    // Close window
-                    case sf::Keyboard::Scan::Escape:
+        switch (currentScreen) {
+            // Detect event
+            sf::Event event;
+            case Screen::Home:
+                while (window.pollEvent(event)) {
+                    if (event.type == sf::Event::Closed) {
                         window.close();
                         done = true;
-                        break;
-                    // Shuffle nums
-                    case sf::Keyboard::Scan::S:
-                        shuffle(nums);
-                        break;
-                    // Bubble Sort
-                    case sf::Keyboard::Scan::B:
-                        bubbleSort(nums);
-                        break;
-                    // Selection Sort
-                    case sf::Keyboard::Scan::E:
-                        selectionSort(nums);
-                        break;
-                    // Merge Sort
-                    case sf::Keyboard::Scan::M:
-                        mergeSort(nums, 0, nums.size());
-                        break;
-                    // Bogo Sort
-                    case sf::Keyboard::Scan::X:
-                        bogoSort(nums);
-                        break;
-                    // Switch to 5-element vector
-                    case sf::Keyboard::Scan::Num1:
-                        nums = nums5;
-                        shuffle(nums);
-                        updateWindow(nums);
-                        break;
-                    // Switch to 10-element vector
-                    case sf::Keyboard::Scan::Num2:
-                        nums = nums10;
-                        shuffle(nums);
-                        updateWindow(nums);
-                        break;
-                    // Switch to 50-element vector
-                    case sf::Keyboard::Scan::Num3:
-                        nums = nums50;
-                        shuffle(nums);
-                        updateWindow(nums);
-                        break;
-                    // Switch to 100-element vector
-                    case sf::Keyboard::Scan::Num4:
-                        nums = nums100;
-                        shuffle(nums);
-                        updateWindow(nums);
-                        break;
-                    // Switch to 250-element vector
-                    case sf::Keyboard::Scan::Num5:
-                        nums = nums250;
-                        shuffle(nums);
-                        updateWindow(nums);
-                        break;
-                    // Switch to 500-element vector
-                    case sf::Keyboard::Scan::Num6:
-                        nums = nums500;
-                        shuffle(nums);
-                        updateWindow(nums);
-                        break;
-                    // Switch to 1000-element vector
-                    case sf::Keyboard::Scan::Num7:
-                        nums = nums1000;
-                        shuffle(nums);
-                        updateWindow(nums);
-                        break;
-                    // Do nothing
-                    default:
-                        break;
+                    } else if (event.type == sf::Event::KeyPressed) {
+                        switch(event.key.scancode) {
+                            // Close window
+                            case sf::Keyboard::Scan::Escape:
+                                window.close();
+                                done = true;
+                                break;
+                            // Switch to Instructions
+                            case sf::Keyboard::Scan::Right:
+                                currentScreen = Screen::Instructions;
+                                break;
+                            // Switch to Sorting
+                            case sf::Keyboard::Scan::Left:
+                                currentScreen = Screen::Sorting;
+                                break;
+                            // Do nothing
+                            default:
+                                break;
+                        }
+                    }
                 }
-            }
+                break;
+            case Screen::Instructions:
+                while (window.pollEvent(event)) {
+                    if (event.type == sf::Event::Closed) {
+                        window.close();
+                        done = true;
+                    } else if (event.type == sf::Event::KeyPressed) {
+                        switch(event.key.scancode) {
+                            // Close window
+                            case sf::Keyboard::Scan::Escape:
+                                window.close();
+                                done = true;
+                                break;
+                            // Switch to Sorting
+                            case sf::Keyboard::Scan::Right:
+                                currentScreen = Screen::Sorting;
+                                break;
+                            // Switch to Home
+                            case sf::Keyboard::Scan::Left:
+                                currentScreen = Screen::Home;
+                                break;
+                            // Do nothing
+                            default:
+                                break;
+                        }
+                    }
+                }
+                break;
+            case Screen::Sorting:
+                while (window.pollEvent(event)) {
+                    // Close window
+                    if (event.type == sf::Event::Closed) {
+                        window.close();
+                        done = true;
+                    } else if (event.type == sf::Event::KeyPressed) {
+                        // Detect which key is pressed
+                        switch(event.key.scancode) {
+                            // Close window
+                            case sf::Keyboard::Scan::Escape:
+                                window.close();
+                                done = true;
+                                break;
+                            // Switch to Home
+                            case sf::Keyboard::Scan::Right:
+                                currentScreen = Screen::Home;
+                                break;
+                            // Switch to Instructions
+                            case sf::Keyboard::Scan::Left:
+                                currentScreen = Screen::Instructions;
+                                break;
+                            // Shuffle nums
+                            case sf::Keyboard::Scan::S:
+                                shuffle(nums);
+                                break;
+                            // Bubble Sort
+                            case sf::Keyboard::Scan::B:
+                                bubbleSort(nums);
+                                break;
+                            // Selection Sort
+                            case sf::Keyboard::Scan::E:
+                                selectionSort(nums);
+                                break;
+                            // Merge Sort
+                            case sf::Keyboard::Scan::M:
+                                mergeSort(nums, 0, nums.size());
+                                break;
+                            // Bogo Sort
+                            case sf::Keyboard::Scan::X:
+                                bogoSort(nums);
+                                break;
+                            // Switch to 5-element vector
+                            case sf::Keyboard::Scan::Num1:
+                                nums = nums5;
+                                shuffle(nums);
+                                updateWindow(nums);
+                                break;
+                            // Switch to 10-element vector
+                            case sf::Keyboard::Scan::Num2:
+                                nums = nums10;
+                                shuffle(nums);
+                                updateWindow(nums);
+                                break;
+                            // Switch to 50-element vector
+                            case sf::Keyboard::Scan::Num3:
+                                nums = nums50;
+                                shuffle(nums);
+                                updateWindow(nums);
+                                break;
+                            // Switch to 100-element vector
+                            case sf::Keyboard::Scan::Num4:
+                                nums = nums100;
+                                shuffle(nums);
+                                updateWindow(nums);
+                                break;
+                            // Switch to 250-element vector
+                            case sf::Keyboard::Scan::Num5:
+                                nums = nums250;
+                                shuffle(nums);
+                                updateWindow(nums);
+                                break;
+                            // Switch to 500-element vector
+                            case sf::Keyboard::Scan::Num6:
+                                nums = nums500;
+                                shuffle(nums);
+                                updateWindow(nums);
+                                break;
+                            // Switch to 1000-element vector
+                            case sf::Keyboard::Scan::Num7:
+                                nums = nums1000;
+                                shuffle(nums);
+                                updateWindow(nums);
+                                break;
+                            // Do nothing
+                            default:
+                                break;
+                        }
+                    }
+                }
+                break;
         }
+        
         // If window is still open, update it
         if (!done) {
             updateWindow(nums);
