@@ -7,11 +7,12 @@ using namespace std;
 #define HEIGHT 700.0
 
 /* Update the window to display the instructions and the current array nums */
-void updateWindow(sf::RenderWindow& window, Screen currentScreen, const vector<int>& nums, sf::Font& font, bool cursorOn, int cursor, bool doneSorting) {
+void updateWindow(sf::RenderWindow& window, Screen currentScreen, const vector<int>& nums, sf::Font& font, bool cursorOn, int cursor, bool doneSorting, string sortTitle, int comparisons, int swaps) {
     window.clear();
 
     sf::Text title;
     sf::Text instructions;
+    sf::Text sortInfo;
 
     switch (currentScreen) {
         case Screen::Home:
@@ -45,6 +46,20 @@ void updateWindow(sf::RenderWindow& window, Screen currentScreen, const vector<i
             window.draw(instructions);
             break;
         case Screen::Sorting:
+            title.setFont(font);
+            title.setString(sortTitle);
+            title.setPosition(sf::Vector2f(WIDTH / 3, HEIGHT / 32));
+            title.setCharacterSize(48);
+            title.setFillColor(sf::Color::White);
+            sortInfo.setFont(font);
+            if (comparisons != -1 && swaps != -1) {
+                sortInfo.setString("Comparisons: " + to_string(comparisons) + "\nSwaps: " + to_string(swaps));
+            } else {
+                sortInfo.setString("");
+            }
+            sortInfo.setPosition(sf::Vector2f(WIDTH / 32, HEIGHT / 32));
+            sortInfo.setCharacterSize(20);
+            sortInfo.setFillColor(sf::Color::White);
             // Create and draw sorting screen
             for (int i = 0; i < nums.size(); ++i) {
                 sf::RectangleShape rectangle(sf::Vector2f(((WIDTH - 200) / nums.size()), (nums[i] * ((HEIGHT - 200) / nums.size()))));
@@ -59,6 +74,8 @@ void updateWindow(sf::RenderWindow& window, Screen currentScreen, const vector<i
                 rectangle.rotate(180.f);
                 window.draw(rectangle);
             }
+            window.draw(title);
+            window.draw(sortInfo);
             break;
     }
 

@@ -20,15 +20,19 @@ void shuffle(vector<int>& nums) {
 
 /* Bubble Sort Algorithm */
 void bubbleSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
+    int comparisons = 0;
+    int swaps = 0;
     for (int i = 0; i < nums.size() - 1; ++i) {
         bool swapped = false;
         for (int j = 0; j < nums.size() - i - 1; ++j) {
             if (checkPause(window, paused)) {
                 return;
             }
+            ++comparisons;
             if (nums[j] > nums[j + 1]) {
+                ++swaps;
                 swap(nums[j], nums[j + 1]);
-                updateWindow(window, currentScreen, nums, font, cursorOn, j);
+                updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "BubbleSort", comparisons, swaps);
                 swapped = true;
             }
         }
@@ -40,38 +44,49 @@ void bubbleSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScree
 
 /* Selection Sort Algorithm */
 void selectionSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
+    int comparisons = 0;
+    int swaps = 0;
     for (int i = 0; i < nums.size(); ++i) {
         int minIndex = i;
         for (int j = i; j < nums.size(); ++j) {
             if (checkPause(window, paused)) {
                 return;
             }
-            updateWindow(window, currentScreen, nums, font, cursorOn, j);
+            ++comparisons;
+            updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "SelectionSort", comparisons, swaps);
             if (nums[j] < nums[minIndex]) {
                 minIndex = j;
             }
         }
+        ++swaps;
         swap(nums[i], nums[minIndex]);
     }
 }
 
 /* Insertion Sort Algorithm */
 void insertionSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
+    int comparisons = 0;
+    int swaps = 0;
     for (int i = 1; i < nums.size(); ++i) {
         int j = i;
         while (j > 0 && nums[j] < nums[j - 1]) {
+            ++comparisons;
             if (checkPause(window, paused)) {
                 return;
             }
+            ++swaps;
             swap(nums[j], nums[j - 1]);
-            updateWindow(window, currentScreen, nums, font, cursorOn, j);
+            updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "InsertionSort", comparisons, swaps);
             --j;
         }
+        ++comparisons;
     }
 }
 
 /* Merge two subsequent parts of nums */
 /* If return false, it means to stop the whole algorithm */
+int mergeComps = 0;
+int mergeSwaps = 0;
 bool merge(vector<int>& nums, int start, int mid, int end, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     vector<int> temp;
     for (int i = start; i <= end; ++i) {
@@ -84,7 +99,9 @@ bool merge(vector<int>& nums, int start, int mid, int end, sf::RenderWindow& win
         if (checkPause(window, paused)) {
             return false;
         }
+        ++mergeSwaps;
         if (a <= mid - start && b <= end - start) {
+            ++mergeComps;
             if (temp[a] < temp[b]) {
                 nums[i] = temp[a];
                 ++a;
@@ -100,7 +117,7 @@ bool merge(vector<int>& nums, int start, int mid, int end, sf::RenderWindow& win
             ++b;
         }
         this_thread::sleep_for(chrono::microseconds(1000));
-        updateWindow(window, currentScreen, nums, font, cursorOn, i);
+        updateWindow(window, currentScreen, nums, font, cursorOn, i, false, "MergeSort", mergeComps, mergeSwaps);
         ++i;
     }
     return true;
@@ -109,6 +126,10 @@ bool merge(vector<int>& nums, int start, int mid, int end, sf::RenderWindow& win
 /* Merge Sort Algorithm */
 /* If return false, it means to stop the whole algorithm */
 bool mergeSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
+    if (start == 0 && end == nums.size() - 1) {
+        mergeComps = 0;
+        mergeSwaps = 0;
+    }
     if (start >= end) {
         return true;
     } else {
@@ -131,6 +152,8 @@ bool mergeSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, 
 
 /* Partition nums for Quick Sort algorithm */
 /* Return -1 if user pauses, otherwise return partition index */
+int quickComps = 0;
+int quickSwaps = 0;
 int partition(vector<int>& nums, int start, int end, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     int pivot = nums[end];
     int i = start - 1;
@@ -139,20 +162,27 @@ int partition(vector<int>& nums, int start, int end, sf::RenderWindow& window, S
             return -1;
         }
         this_thread::sleep_for(chrono::microseconds(250));
+        ++quickComps;
         if (nums[j] < pivot) {
+            ++quickSwaps;
             ++i;
             swap(nums[i], nums[j]);
-            updateWindow(window, currentScreen, nums, font, cursorOn, j);
+            updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "QuickSort", quickComps, quickSwaps);
         }
     }
+    ++quickSwaps;
     swap(nums[i + 1], nums[end]);
-    updateWindow(window, currentScreen, nums, font, cursorOn, i);
+    updateWindow(window, currentScreen, nums, font, cursorOn, i, false, "QuickSort", quickComps, quickSwaps);
     return i + 1;
 }
 
 /* Quick Sort Algorithm */
 /* If return false, it means to stop the whole algorithm */
 bool quickSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
+    if (start == 0 && end == nums.size() - 1) {
+        quickComps = 0;
+        quickSwaps = 0;
+    }
     if (start < end) {
         int partitionIndex = partition(nums, start, end, window, currentScreen, cursorOn, font, paused);
         if (partitionIndex == -1) {
@@ -170,6 +200,8 @@ bool quickSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, 
 
 /* Bogo Sort Algorithm */
 void bogoSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
+    int comparisons = 0;
+    int swaps = 0;
     while (true) {
         if (checkPause(window, paused)) {
             return;
@@ -177,7 +209,8 @@ void bogoSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen,
         shuffle(nums);
         bool good = true;
         for (int i = 0; i < nums.size() - 1; ++i) {
-            updateWindow(window, currentScreen, nums, font, cursorOn, i);
+            updateWindow(window, currentScreen, nums, font, cursorOn, i, false, "BogoSort", comparisons, swaps);
+            ++comparisons;
             if (nums[i] > nums[i + 1]) {
                 good = false;
                 break;

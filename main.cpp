@@ -28,8 +28,8 @@ void initialize(vector<int>& nums) {
 }
 
 /* Show to the user that nums is sorted */
-void finishedSorting(vector<int>& nums) {
-    updateWindow(window, currentScreen, nums, font, cursorOn);
+void finishedSorting(vector<int>& nums, string sortTitle = "") {
+    updateWindow(window, currentScreen, nums, font, cursorOn, -1, false, sortTitle);
 
     // If the sorting stopped from user pausing
     if (paused) {
@@ -39,10 +39,10 @@ void finishedSorting(vector<int>& nums) {
     
     for (int i = 0; i < nums.size(); ++i) {
         if (checkPause(window, paused)) {
-            updateWindow(window, currentScreen, nums, font, cursorOn);
+            updateWindow(window, currentScreen, nums, font, cursorOn, -1, false, sortTitle);
             return;
         }
-        updateWindow(window, currentScreen, nums, font, cursorOn, i, true);
+        updateWindow(window, currentScreen, nums, font, cursorOn, i, true, sortTitle);
         this_thread::sleep_for(chrono::milliseconds(800 / nums.size()));
     }
     this_thread::sleep_for(chrono::milliseconds(500));
@@ -169,31 +169,31 @@ int main(int argc, char** argv) {
                             // Bubble Sort
                             case sf::Keyboard::Scan::B:
                                 bubbleSort(nums, window, currentScreen, cursorOn, font, paused);
-                                finishedSorting(nums);
+                                finishedSorting(nums, "BubbleSort");
                                 break;
                             // Selection Sort
                             case sf::Keyboard::Scan::E:
                                 selectionSort(nums, window, currentScreen, cursorOn, font, paused);
-                                finishedSorting(nums);
+                                finishedSorting(nums, "SelectionSort");
                                 break;
                             // Insertion Sort
                             case sf::Keyboard::Scan::I:
                                 insertionSort(nums, window, currentScreen, cursorOn, font, paused);
-                                finishedSorting(nums);
+                                finishedSorting(nums, "InsertionSort");
                                 break;
                             // Merge Sort
                             case sf::Keyboard::Scan::M:
                                 mergeSort(nums, 0, nums.size() - 1, window, currentScreen, cursorOn, font, paused);
-                                finishedSorting(nums);
+                                finishedSorting(nums, "MergeSort");
                                 break;
                             case sf::Keyboard::Scan::Q:
                                 quickSort(nums, 0, nums.size() - 1, window, currentScreen, cursorOn, font, paused);
-                                finishedSorting(nums);
+                                finishedSorting(nums, "QuickSort");
                                 break;
                             // Bogo Sort
                             case sf::Keyboard::Scan::X:
                                 bogoSort(nums, window, currentScreen, cursorOn, font, paused);
-                                finishedSorting(nums);
+                                finishedSorting(nums, "BogoSort");
                                 break;
                             // Switch to 5-element vector
                             case sf::Keyboard::Scan::Num1:
