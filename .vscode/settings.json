@@ -2,6 +2,8 @@
     "files.associations": {
         "*.cpp": "cpp",
         "__threading_support": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "vector": "cpp",
+        "iostream": "cpp"
     }
 }
