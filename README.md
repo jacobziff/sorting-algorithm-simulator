@@ -12,10 +12,10 @@ For this project, I chose to use C++ with the SFML library. It is my first time 
 
 ## Installation
 
-Download the [ZIP file](https://github.com/jacobziff/sorting-algorithm-simulator/archive/refs/heads/main.zip) and extract/unzip it. The necessary files are the "Simulator" exe file and the "arial" ttf file located in the "assets" folder.
+Download the [ZIP file](https://github.com/jacobziff/sorting-algorithm-simulator/archive/refs/heads/main.zip) and extract/unzip it. The necessary files are the "Simulator" executable and the "arial" ttf file located in the "assets" folder.
 
 ## Usage
 
-All that is necessary is to run the "Simulator" exe file in the directory.  
+All that is necessary is to run the "Simulator" executable in the directory.  
   
 Once started, the left and right arrow keys can be used to navigate between the three screens. The escape key can be used to exit the program. The "Instructions" screen lists further details about using the simulator.

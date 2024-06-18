@@ -1,8 +1,11 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <filesystem>
 #include "sorting.h"
 #include <SFML/Graphics.hpp>
+#include <mach-o/dyld.h>
+#include <limits.h>
 using namespace std;
 
 // g++ *.cpp -I/opt/homebrew/Cellar/sfml/2.6.1/include/ -o Simulator -L/opt/homebrew/Cellar/sfml/2.6.1/lib/ -lsfml-graphics -lsfml-window -lsfml-system
@@ -72,8 +75,24 @@ int main(int argc, char** argv) {
     // Boolean for if window is still open
     bool done = false;
 
+    // Get current path for use of loading font
+    char buf [PATH_MAX];
+    uint32_t bufsize = PATH_MAX;
+    _NSGetExecutablePath(buf, &bufsize);
+    string path = "";
+    int i = 0;
+    while (buf[i] != '\0') {
+        path += buf[i];
+        ++i;
+    }
+    i = path.size() - 1;
+    while (path[i] != '/') {
+        --i;
+    }
+    path = path.substr(0, i);
+
     // Load font for instructions
-    if (!font.loadFromFile("../assets/arial.ttf")) {
+    if (!font.loadFromFile(path + "/assets/" + "arial.ttf")) {
         cout << "ERROR WITH TEXT" << endl;
     }
 

@@ -5,6 +5,7 @@
         "chrono": "cpp",
         "vector": "cpp",
         "iostream": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "filesystem": "cpp"
     }
 }
