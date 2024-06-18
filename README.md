@@ -6,6 +6,7 @@ This is a simple program to display sorting algorithms virtually. Those included
 * InsertionSort
 * MergeSort
 * QuickSort
+* SlowSort
 * BogoSort
   
 For this project, I chose to use C++ with the SFML library. It is my first time using anything visual beyond what can be displayed in a terminal with C++.

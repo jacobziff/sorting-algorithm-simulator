@@ -34,12 +34,12 @@ void updateWindow(sf::RenderWindow& window, Screen currentScreen, const vector<i
             // Create and draw instructions screen
             title.setFont(font);
             title.setString("Instructions");
-            title.setPosition(sf::Vector2f(WIDTH / 3, HEIGHT / 10));
+            title.setPosition(sf::Vector2f(WIDTH / 3, HEIGHT / 15));
             title.setCharacterSize(48);
             title.setFillColor(sf::Color::White);
             instructions.setFont(font);
-            instructions.setString("Esc: Exit\nP: Pause Sorting\nS: Shuffle Array\nC: Enable/Disable Cursor\nB: Bubble Sort\nX: Bogo Sort\nE: Selection Sort\nI: Insertion Sort\nM: Merge Sort\nQ: Quick Sort\n1 - 7: Change Size of Array");
-            instructions.setPosition(sf::Vector2f(WIDTH / 10, HEIGHT / 3));
+            instructions.setString("Esc: Exit\nP: Pause Sorting\nS: Shuffle Array\nC: Enable/Disable Cursor\n\n1 - 7: Change Size of Array (Default is 5)\n\nB: BubbleSort (Recommended for medium arrays)\nE: SelectionSort (Recommended for medium arrays)\nI: InsertionSort (Recommended for medium arrays)\nM: MergeSort (Recommended for large arrays)\nQ: QuickSort (Recommended for large arrays)\nZ: SlowSort (Recommended for small arrays)\nX: BogoSort (Recommended for smallest arrays)\n\n1: Smallest\n2 - 3: Small\n4 - 5: Medium\n6 - 7: Large");
+            instructions.setPosition(sf::Vector2f(WIDTH / 10, HEIGHT / 6));
             instructions.setCharacterSize(24);
             instructions.setFillColor(sf::Color::White);
             window.draw(title);

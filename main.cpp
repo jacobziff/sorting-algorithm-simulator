@@ -220,6 +220,10 @@ int main(int argc, char** argv) {
                                 bogoSort(nums, window, currentScreen, cursorOn, font, paused);
                                 finishedSorting(nums, "BogoSort");
                                 break;
+                            case sf::Keyboard::Scan::Z:
+                                slowSort(nums, 0, nums.size() - 1, window, currentScreen, cursorOn, font, paused);
+                                finishedSorting(nums, "SlowSort");
+                                break;
                             // Switch to 5-element vector
                             case sf::Keyboard::Scan::Num1:
                                 nums = nums5;

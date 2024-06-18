@@ -6,6 +6,7 @@
         "vector": "cpp",
         "iostream": "cpp",
         "thread": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "random": "cpp"
     }
 }

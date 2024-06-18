@@ -18,7 +18,7 @@ void shuffle(vector<int>& nums) {
     shuffle(nums.begin(), nums.end(), e);
 }
 
-/* Bubble Sort Algorithm */
+/* BubbleSort Algorithm */
 void bubbleSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     int comparisons = 0;
     int swaps = 0;
@@ -45,7 +45,7 @@ void bubbleSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScree
     }
 }
 
-/* Selection Sort Algorithm */
+/* SelectionSort Algorithm */
 void selectionSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     int comparisons = 0;
     int swaps = 0;
@@ -69,7 +69,7 @@ void selectionSort(vector<int>& nums, sf::RenderWindow& window, Screen currentSc
     }
 }
 
-/* Insertion Sort Algorithm */
+/* InsertionSort Algorithm */
 void insertionSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     int comparisons = 0;
     int swaps = 0;
@@ -135,7 +135,7 @@ bool merge(vector<int>& nums, int start, int mid, int end, sf::RenderWindow& win
     return true;
 }
 
-/* Merge Sort Algorithm */
+/* MergeSort Algorithm */
 /* If return false, it means to stop the whole algorithm */
 bool mergeSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     if (start == 0 && end == nums.size() - 1) {
@@ -162,7 +162,7 @@ bool mergeSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, 
     }
 }
 
-/* Partition nums for Quick Sort algorithm */
+/* Partition nums for QuickSort algorithm */
 /* Return -1 if user pauses, otherwise return partition index */
 int quickComps = 0;
 int quickSwaps = 0;
@@ -190,7 +190,7 @@ int partition(vector<int>& nums, int start, int end, sf::RenderWindow& window, S
     return i + 1;
 }
 
-/* Quick Sort Algorithm */
+/* QuickSort Algorithm */
 /* If return false, it means to stop the whole algorithm */
 bool quickSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     if (start == 0 && end == nums.size() - 1) {
@@ -212,7 +212,7 @@ bool quickSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, 
     return true;
 }
 
-/* Bogo Sort Algorithm */
+/* BogoSort Algorithm */
 void bogoSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
     int comparisons = 0;
     int swaps = 0;
@@ -235,4 +235,45 @@ void bogoSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScreen,
         }
         this_thread::sleep_for(chrono::milliseconds(100));
     }
+}
+
+/* SlowSort Algorithm */
+/* If return false, it means to stop the whole algorithm */
+int slowComps = 0;
+int slowSwaps = 0;
+bool slowSort(vector<int>& nums, int start, int end, sf::RenderWindow& window, Screen currentScreen, bool cursorOn, sf::Font& font, bool& paused) {
+    if (start == 0 && end == nums.size() - 1) {
+        slowComps = 0;
+        slowSwaps = 0;
+    }
+    if (start >= end) {
+        return true;
+    }
+    if (checkPause(window, paused)) {
+        return false;
+    }
+    int mid = start + ((end - start) / 2);
+    this_thread::sleep_for(chrono::microseconds(500));
+    if (rand() % 8 == 0) {
+        updateWindow(window, currentScreen, nums, font, cursorOn, mid, false, "SlowSort", slowComps, slowSwaps);
+    }
+    if (!slowSort(nums, start, mid, window, currentScreen, cursorOn, font, paused)) {
+        return false;
+    }
+    if (!slowSort(nums, mid + 1, end, window, currentScreen, cursorOn, font, paused)) {
+        return false;
+    }
+    this_thread::sleep_for(chrono::microseconds(500));
+    if (rand() % 8 == 0) {
+        updateWindow(window, currentScreen, nums, font, cursorOn, end, false, "SlowSort", slowComps, slowSwaps);
+    }
+    ++slowComps;
+    if (nums[end] < nums[mid]) {
+        ++slowSwaps;
+        swap(nums[end], nums[mid]);
+    }
+    if (!slowSort(nums, start, end - 1, window, currentScreen, cursorOn, font, paused)) {
+        return false;
+    }
+    return true;
 }
