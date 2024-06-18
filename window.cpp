@@ -63,7 +63,7 @@ void updateWindow(sf::RenderWindow& window, Screen currentScreen, const vector<i
             // Create and draw sorting screen
             for (int i = 0; i < nums.size(); ++i) {
                 sf::RectangleShape rectangle(sf::Vector2f(((WIDTH - 200) / nums.size()), (nums[i] * ((HEIGHT - 200) / nums.size()))));
-                rectangle.setPosition(sf::Vector2f(100 + (i * ((WIDTH - 200) / nums.size())), HEIGHT - 100));
+                rectangle.setPosition(sf::Vector2f(100 + ((i + 1) * ((WIDTH - 200) / nums.size())), HEIGHT - 100));
                 rectangle.setFillColor(sf::Color(150, 150, 150));
                 if (cursorOn && i == cursor) {
                     rectangle.setFillColor(sf::Color(219, 31, 34));

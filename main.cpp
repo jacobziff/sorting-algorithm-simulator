@@ -5,8 +5,8 @@
 #include <SFML/Graphics.hpp>
 using namespace std;
 
-// g++ *.cpp -I/opt/homebrew/Cellar/sfml/2.6.1/include/ -o viz -L/opt/homebrew/Cellar/sfml/2.6.1/lib/ -lsfml-graphics -lsfml-window -lsfml-system
-// ./viz
+// g++ *.cpp -I/opt/homebrew/Cellar/sfml/2.6.1/include/ -o Simulator -L/opt/homebrew/Cellar/sfml/2.6.1/lib/ -lsfml-graphics -lsfml-window -lsfml-system
+// ./Simulator
 
 // Default window sizes
 #define WIDTH 700.0
