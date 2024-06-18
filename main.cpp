@@ -77,6 +77,9 @@ int main(int argc, char** argv) {
         cout << "ERROR WITH TEXT" << endl;
     }
 
+    // Slowing the program down for ease CPU and GPU
+    int waitMS = 30;
+
     // Main program loop
     while (window.isOpen()) {
         switch (currentScreen) {
@@ -84,6 +87,7 @@ int main(int argc, char** argv) {
             sf::Event event;
             case Screen::Home:
                 while (window.pollEvent(event)) {
+                    this_thread::sleep_for(chrono::milliseconds(waitMS));
                     if (event.type == sf::Event::Closed) {
                         window.close();
                         done = true;
@@ -111,6 +115,7 @@ int main(int argc, char** argv) {
                 break;
             case Screen::Instructions:
                 while (window.pollEvent(event)) {
+                    this_thread::sleep_for(chrono::milliseconds(waitMS));
                     if (event.type == sf::Event::Closed) {
                         window.close();
                         done = true;
@@ -138,6 +143,7 @@ int main(int argc, char** argv) {
                 break;
             case Screen::Sorting:
                 while (window.pollEvent(event)) {
+                    this_thread::sleep_for(chrono::milliseconds(waitMS));
                     // Close window
                     if (event.type == sf::Event::Closed) {
                         window.close();
@@ -248,6 +254,7 @@ int main(int argc, char** argv) {
         
         // If window is still open, update it
         if (!done) {
+            this_thread::sleep_for(chrono::milliseconds(waitMS));
             updateWindow(window, currentScreen, nums, font, cursorOn);
         }
     }

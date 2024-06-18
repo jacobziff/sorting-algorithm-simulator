@@ -32,7 +32,10 @@ void bubbleSort(vector<int>& nums, sf::RenderWindow& window, Screen currentScree
             if (nums[j] > nums[j + 1]) {
                 ++swaps;
                 swap(nums[j], nums[j + 1]);
-                updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "BubbleSort", comparisons, swaps);
+                this_thread::sleep_for(chrono::microseconds(1000));
+                if (rand() % 4 == 0) {
+                    updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "BubbleSort", comparisons, swaps);
+                }
                 swapped = true;
             }
         }
@@ -53,7 +56,10 @@ void selectionSort(vector<int>& nums, sf::RenderWindow& window, Screen currentSc
                 return;
             }
             ++comparisons;
-            updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "SelectionSort", comparisons, swaps);
+            this_thread::sleep_for(chrono::microseconds(1000));
+            if (rand() % 4 == 0) {
+                updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "SelectionSort", comparisons, swaps);
+            }
             if (nums[j] < nums[minIndex]) {
                 minIndex = j;
             }
@@ -70,13 +76,16 @@ void insertionSort(vector<int>& nums, sf::RenderWindow& window, Screen currentSc
     for (int i = 1; i < nums.size(); ++i) {
         int j = i;
         while (j > 0 && nums[j] < nums[j - 1]) {
+            this_thread::sleep_for(chrono::microseconds(1000));
             ++comparisons;
             if (checkPause(window, paused)) {
                 return;
             }
             ++swaps;
             swap(nums[j], nums[j - 1]);
-            updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "InsertionSort", comparisons, swaps);
+            if (rand() % 4 == 0) {
+                updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "InsertionSort", comparisons, swaps);
+            }
             --j;
         }
         ++comparisons;
@@ -117,9 +126,12 @@ bool merge(vector<int>& nums, int start, int mid, int end, sf::RenderWindow& win
             ++b;
         }
         this_thread::sleep_for(chrono::microseconds(1000));
-        updateWindow(window, currentScreen, nums, font, cursorOn, i, false, "MergeSort", mergeComps, mergeSwaps);
+        if (rand() % 4 == 0) {
+            updateWindow(window, currentScreen, nums, font, cursorOn, i, false, "MergeSort", mergeComps, mergeSwaps);
+        }
         ++i;
     }
+    updateWindow(window, currentScreen, nums, font, cursorOn, i, false, "MergeSort", mergeComps, mergeSwaps);
     return true;
 }
 
@@ -161,13 +173,15 @@ int partition(vector<int>& nums, int start, int end, sf::RenderWindow& window, S
         if (checkPause(window, paused)) {
             return -1;
         }
-        this_thread::sleep_for(chrono::microseconds(250));
+        this_thread::sleep_for(chrono::microseconds(800));
         ++quickComps;
         if (nums[j] < pivot) {
             ++quickSwaps;
             ++i;
             swap(nums[i], nums[j]);
-            updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "QuickSort", quickComps, quickSwaps);
+            if (rand() % 4 == 0) {
+                updateWindow(window, currentScreen, nums, font, cursorOn, j, false, "QuickSort", quickComps, quickSwaps);
+            }
         }
     }
     ++quickSwaps;
