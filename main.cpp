@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     bool done = false;
 
     // Load font for instructions
-    if (!font.loadFromFile("arial.ttf")) {
+    if (!font.loadFromFile("../assets/arial.ttf")) {
         cout << "ERROR WITH TEXT" << endl;
     }
 
